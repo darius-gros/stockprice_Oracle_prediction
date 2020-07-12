@@ -7,17 +7,14 @@ Oracle stock price
 """
 
 # Recurrent Neural Network
+#Data Preprocessing
 
-
-
-# Part 1 - Data Preprocessing
-
-# Importing the libraries
+# Import libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Importing the training set
+# training set
 dataset_train = pd.read_excel('Oracle_Training_Set.xlsx')
 training_set = dataset_train.iloc[:, 1:2].values
 
@@ -50,37 +47,37 @@ from keras.layers import Dropout
 # Initialising the RNN
 regressor = Sequential()
 
-# Adding the first LSTM layer and some Dropout regularisation
+# 1st LSTM layer + Dropout regularisation
 regressor.add(LSTM(units = 50, return_sequences = True, input_shape = (X_train.shape[1], 1)))
 regressor.add(Dropout(0.2))
 
-# Adding a second LSTM layer and some Dropout regularisation
+# 2nd LSTM layer + Dropout regularisation
 regressor.add(LSTM(units = 50, return_sequences = True))
 regressor.add(Dropout(0.2))
 
-# Adding a third LSTM layer and some Dropout regularisation
+# 3rd LSTM layer + Dropout regularisation
 regressor.add(LSTM(units = 50, return_sequences = True))
 regressor.add(Dropout(0.2))
 
-# Adding a fourth LSTM layer and some Dropout regularisation
+# 4th LSTM layer + Dropout regularisation
 regressor.add(LSTM(units = 50))
 regressor.add(Dropout(0.2))
 
-# Adding the output layer
+# Output layer
 regressor.add(Dense(units = 1))
 
-# Compiling the RNN
+# Compile RNN
 regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
-# Fitting the RNN to the Training set
+# Fit RNN to the Training set
 regressor.fit(X_train, y_train, epochs = 100, batch_size = 32)
 
 
-# Getting the real stock price of 2017
+# Get the real stock price of May-June 6 2020
 dataset_test = pd.read_excel('Oracle_Test_Set.xlsx')
 real_stock_price = dataset_test.iloc[:, 1:2].values
 
-# Getting the predicted stock price of 2017
+# Getting the predicted stock price of May-June 6th 2020
 dataset_total = pd.concat((dataset_train['Open'], dataset_test['Open']), axis = 0)
 inputs = dataset_total[len(dataset_total) - len(dataset_test) - 60:].values
 inputs = inputs.reshape(-1,1)
@@ -93,11 +90,12 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 predicted_stock_price = regressor.predict(X_test)
 predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 
-# Visualising the results
+# Visualising the results + export results as png.
 plt.plot(real_stock_price, color = 'red', label = 'Real Oracle Stock Price')
 plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted Oracle Stock Price')
 plt.title('Oracle Stock Price Prediction')
 plt.xlabel('Time')
 plt.ylabel('Oracle Stock Price')
-plt.legend()
-plt.show()
+fig1 = plt.gcf()
+fig1.savefig('Oracle Stock Price Prediction.png', dpi = 100)
+fig1.show()
